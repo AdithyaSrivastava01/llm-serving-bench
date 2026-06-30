@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 import sys
 import time
 from typing import Any
@@ -24,6 +25,7 @@ class VLLMEngine(ServingEngine):
         self._container: Any = None
         self._process: asyncio.subprocess.Process | None = None
         self._port = VLLM_PORT
+        self._api_key: str | None = os.environ.get("VLLM_API_KEY")
 
     def _build_launch_cmd(self) -> list[str]:
         cmd = [
@@ -64,6 +66,12 @@ class VLLMEngine(ServingEngine):
             "auto_remove": True,
             "shm_size": "4g",
         }
+
+    @property
+    def _headers(self) -> dict[str, str]:
+        if self._api_key:
+            return {"Authorization": f"Bearer {self._api_key}"}
+        return {}
 
     @property
     def _health_url(self) -> str:
@@ -157,7 +165,7 @@ class VLLMEngine(ServingEngine):
         }
         token_times: list[float] = []
         full_text = ""
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(headers=self._headers) as session:
             if request.stream:
                 async with session.post(
                     f"{self._base_url}/v1/completions",
