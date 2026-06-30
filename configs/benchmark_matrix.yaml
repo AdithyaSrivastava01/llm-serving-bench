@@ -1,0 +1,17 @@
+matrix:
+  engines: [vllm, trtllm, sglang]
+  models:
+    - meta-llama/Llama-3.1-8B-Instruct
+    - mistralai/Mistral-7B-Instruct-v0.3
+  workloads: [standard, prefix_heavy, speculative]
+  tp_size: [1, 2]
+  concurrency: [1, 4, 16, 32]
+  engine_params:
+    vllm:
+      enable_prefix_caching: [true, false]
+      speculative_model: [null, "turboderp/Llama-3.1-1B-Instruct"]
+    trtllm:
+      decoding_mode: [auto, medusa]
+      kv_cache_free_gpu_mem_fraction: [0.9]
+    sglang:
+      chunked_prefill_size: [4096, 8192]
