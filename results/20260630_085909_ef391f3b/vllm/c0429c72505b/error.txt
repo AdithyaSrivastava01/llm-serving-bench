@@ -1,0 +1,20 @@
+vLLM process exited with code 1: 12/dist-packages/vllm/transformers_utils/config.py", line 624, in maybe_override_with_speculators
+(APIServer pid=1345)     config_dict, _ = PretrainedConfig.get_config_dict(
+(APIServer pid=1345)                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1345)   File "/usr/local/lib/python3.12/dist-packages/transformers/configuration_utils.py", line 687, in get_config_dict
+(APIServer pid=1345)     config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+(APIServer pid=1345)                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1345)   File "/usr/local/lib/python3.12/dist-packages/transformers/configuration_utils.py", line 742, in _get_config_dict
+(APIServer pid=1345)     resolved_config_file = cached_file(
+(APIServer pid=1345)                            ^^^^^^^^^^^^
+(APIServer pid=1345)   File "/usr/local/lib/python3.12/dist-packages/transformers/utils/hub.py", line 293, in cached_file
+(APIServer pid=1345)     file = cached_files(path_or_repo_id=path_or_repo_id, filenames=[filename], **kwargs)
+(APIServer pid=1345)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=1345)   File "/usr/local/lib/python3.12/dist-packages/transformers/utils/hub.py", line 503, in cached_files
+(APIServer pid=1345)     raise OSError(
+(APIServer pid=1345) OSError: You are trying to access a gated repo.
+(APIServer pid=1345) Make sure to have access to it at https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct.
+(APIServer pid=1345) 401 Client Error. (Request ID: Root=1-6a438574-29bd78cc60d0405004b40007;4f841239-9e99-4b58-b34f-a29fe91ac985)
+(APIServer pid=1345) 
+(APIServer pid=1345) Cannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json.
+(APIServer pid=1345) Access to model meta-llama/Llama-3.1-8B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in.

@@ -1,0 +1,25 @@
+vLLM process exited with code 1:           ^^^^
+(APIServer pid=2532)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/async_llm.py", line 146, in __init__
+(APIServer pid=2532)     self.engine_core = EngineCoreClient.make_async_mp_client(
+(APIServer pid=2532)                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=2532)   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(APIServer pid=2532)     return func(*args, **kwargs)
+(APIServer pid=2532)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=2532)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 132, in make_async_mp_client
+(APIServer pid=2532)     return AsyncMPClient(*client_args)
+(APIServer pid=2532)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=2532)   File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(APIServer pid=2532)     return func(*args, **kwargs)
+(APIServer pid=2532)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=2532)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 963, in __init__
+(APIServer pid=2532)     super().__init__(
+(APIServer pid=2532)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 573, in __init__
+(APIServer pid=2532)     with launch_core_engines(
+(APIServer pid=2532)          ^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=2532)   File "/usr/lib/python3.12/contextlib.py", line 144, in __exit__
+(APIServer pid=2532)     next(self.gen)
+(APIServer pid=2532)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/utils.py", line 1213, in launch_core_engines
+(APIServer pid=2532)     wait_for_engine_startup(
+(APIServer pid=2532)   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/utils.py", line 1272, in wait_for_engine_startup
+(APIServer pid=2532)     raise RuntimeError(
+(APIServer pid=2532) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
