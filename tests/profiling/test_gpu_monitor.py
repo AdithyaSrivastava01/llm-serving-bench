@@ -1,4 +1,5 @@
 import pytest
+
 from llm_bench.profiling.gpu_monitor import GPUMonitor, GPUSample
 
 

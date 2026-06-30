@@ -1,5 +1,5 @@
-import pytest
 from typer.testing import CliRunner
+
 from llm_bench.cli import app
 
 runner = CliRunner()

@@ -1,7 +1,7 @@
 import json
-import pytest
 from pathlib import Path
-from llm_bench.workloads.datasets import SyntheticDataset, ShareGPTDataset, DatasetEntry
+
+from llm_bench.workloads.datasets import DatasetEntry, ShareGPTDataset, SyntheticDataset
 
 
 def test_dataset_entry_structure() -> None:

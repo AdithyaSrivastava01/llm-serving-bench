@@ -1,5 +1,6 @@
 import pytest
-from llm_bench.profiling.metrics import RequestMetrics, BenchmarkResult
+
+from llm_bench.profiling.metrics import BenchmarkResult, RequestMetrics
 
 
 def test_request_metrics_itl_computation() -> None:

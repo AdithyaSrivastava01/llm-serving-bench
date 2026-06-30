@@ -1,7 +1,7 @@
 import pytest
-from llm_bench.engines.vllm import VLLMEngine
-from llm_bench.engines.base import GenerateRequest
+
 from llm_bench.config.schema import EngineConfig, EngineType
+from llm_bench.engines.vllm import VLLMEngine
 
 
 @pytest.fixture
@@ -25,9 +25,7 @@ def test_vllm_engine_builds_docker_args(vllm_config: EngineConfig) -> None:
 
 
 def test_vllm_engine_builds_tp_args() -> None:
-    cfg = EngineConfig(
-        engine=EngineType.VLLM, model="meta-llama/Llama-3.1-8B-Instruct", tp_size=2
-    )
+    cfg = EngineConfig(engine=EngineType.VLLM, model="meta-llama/Llama-3.1-8B-Instruct", tp_size=2)
     engine = VLLMEngine(cfg)
     cmd = engine._build_launch_cmd()
     assert "--tensor-parallel-size" in cmd

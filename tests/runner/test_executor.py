@@ -1,6 +1,6 @@
 import pytest
+
 from llm_bench.runner.executor import RequestExecutor, poisson_arrival_times
-from llm_bench.engines.base import GenerateRequest
 
 
 def test_executor_init() -> None:

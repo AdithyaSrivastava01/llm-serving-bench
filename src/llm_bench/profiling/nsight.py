@@ -54,9 +54,7 @@ class NsightProfiler:
             str(target_pid),
         ]
 
-    def build_stats_cmd(
-        self, trace_path: Path, report: str = "gpukernsum"
-    ) -> list[str]:
+    def build_stats_cmd(self, trace_path: Path, report: str = "gpukernsum") -> list[str]:
         return [
             "nsys",
             "stats",

@@ -1,6 +1,7 @@
 import pytest
-from llm_bench.engines.sglang import SGLangEngine
+
 from llm_bench.config.schema import EngineConfig, EngineType
+from llm_bench.engines.sglang import SGLangEngine
 
 
 @pytest.fixture

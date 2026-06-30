@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Any
 
 import aiohttp
-import docker
 
+import docker
 from llm_bench.config.schema import EngineConfig
 from llm_bench.engines.base import GenerateRequest, GenerateResponse, ServingEngine
 

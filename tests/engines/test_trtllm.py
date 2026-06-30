@@ -1,6 +1,7 @@
 import pytest
-from llm_bench.engines.trtllm import TRTLLMEngine
+
 from llm_bench.config.schema import EngineConfig, EngineType
+from llm_bench.engines.trtllm import TRTLLMEngine
 
 
 @pytest.fixture
@@ -41,9 +42,7 @@ def test_trtllm_build_cmd(trtllm_config: EngineConfig) -> None:
 def test_trtllm_health_url(trtllm_config: EngineConfig) -> None:
     engine = TRTLLMEngine(trtllm_config)
     engine._base_url = "http://localhost:8000"
-    assert (
-        "health" in engine._health_url.lower() or "ready" in engine._health_url.lower()
-    )
+    assert "health" in engine._health_url.lower() or "ready" in engine._health_url.lower()
 
 
 def test_trtllm_medusa_decoding() -> None:

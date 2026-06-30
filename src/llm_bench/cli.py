@@ -31,9 +31,7 @@ def run(
     results_dir: Path = typer.Option(
         Path("results"), "--results-dir", "-o", help="Output directory for results"
     ),
-    num_gpus: int = typer.Option(
-        2, "--num-gpus", "-g", help="Number of available GPUs"
-    ),
+    num_gpus: int = typer.Option(2, "--num-gpus", "-g", help="Number of available GPUs"),
     skip_existing: bool = typer.Option(
         True,
         "--skip-existing/--no-skip-existing",
@@ -75,7 +73,9 @@ def analyze(
     """Run statistical analysis on benchmark results."""
     setup_logging(verbose)
     import json
+
     import pandas as pd
+
     from llm_bench.analysis.export import ResultExporter
 
     parquet_files = list(results_dir.rglob("metrics.parquet"))
@@ -120,6 +120,7 @@ def report(
     """Generate plots and report from analysis results."""
     setup_logging(verbose)
     import pandas as pd
+
     from llm_bench.analysis.plots import BenchmarkPlotter
 
     combined = results_dir / "analysis" / "combined_results.parquet"

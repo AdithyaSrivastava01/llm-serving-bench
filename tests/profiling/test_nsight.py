@@ -1,5 +1,5 @@
-import pytest
 from pathlib import Path
+
 from llm_bench.profiling.nsight import NsightProfiler
 
 

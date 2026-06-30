@@ -7,8 +7,8 @@ import time
 from typing import Any
 
 import aiohttp
-import docker
 
+import docker
 from llm_bench.config.schema import EngineConfig
 from llm_bench.engines.base import GenerateRequest, GenerateResponse, ServingEngine
 
@@ -66,9 +66,7 @@ class SGLangEngine(ServingEngine):
         return f"{self._base_url}/health"
 
     async def start(self) -> None:
-        logger.info(
-            "Starting SGLang for %s (TP=%d)", self.config.model, self.config.tp_size
-        )
+        logger.info("Starting SGLang for %s (TP=%d)", self.config.model, self.config.tp_size)
         client = docker.from_env()
         self._container = client.containers.run(**self._build_container_config())
         self._base_url = f"http://localhost:{self._port}"
@@ -142,9 +140,7 @@ class SGLangEngine(ServingEngine):
 
         metrics: dict[str, Any] = {}
         try:
-            with urllib.request.urlopen(
-                f"{self._base_url}/get_model_info", timeout=5
-            ) as resp:
+            with urllib.request.urlopen(f"{self._base_url}/get_model_info", timeout=5) as resp:
                 metrics["model_info"] = json.loads(resp.read().decode())
         except Exception as e:
             logger.warning("Failed to get SGLang model info: %s", e)

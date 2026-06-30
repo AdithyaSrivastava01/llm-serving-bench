@@ -101,9 +101,7 @@ class SyntheticDataset(Dataset):
         for _ in range(self.num_samples):
             words = [rng.choice(self.WORD_POOL) for _ in range(words_needed)]
             prompt = " ".join(words)
-            entries.append(
-                DatasetEntry(prompt=prompt, expected_output_tokens=self.output_tokens)
-            )
+            entries.append(DatasetEntry(prompt=prompt, expected_output_tokens=self.output_tokens))
         return entries
 
 
@@ -124,9 +122,7 @@ class ShareGPTDataset(Dataset):
                 continue
             prompt = human_turns[0]
             output_tokens = len(gpt_turns[0].split()) if gpt_turns else 256
-            entries.append(
-                DatasetEntry(prompt=prompt, expected_output_tokens=output_tokens)
-            )
+            entries.append(DatasetEntry(prompt=prompt, expected_output_tokens=output_tokens))
         if self.num_samples is not None:
             entries = entries[: self.num_samples]
         return entries

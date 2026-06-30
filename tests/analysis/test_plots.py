@@ -1,7 +1,9 @@
-import pytest
-import pandas as pd
-import numpy as np
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+
 from llm_bench.analysis.plots import BenchmarkPlotter
 
 
@@ -26,17 +28,13 @@ def sample_results_df() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def test_plotter_creates_output_dir(
-    tmp_path: Path, sample_results_df: pd.DataFrame
-) -> None:
+def test_plotter_creates_output_dir(tmp_path: Path, sample_results_df: pd.DataFrame) -> None:
     plotter = BenchmarkPlotter(output_dir=tmp_path / "plots")
     plotter.plot_ttft_vs_concurrency(sample_results_df)
     assert (tmp_path / "plots").exists()
 
 
-def test_plot_ttft_vs_concurrency(
-    tmp_path: Path, sample_results_df: pd.DataFrame
-) -> None:
+def test_plot_ttft_vs_concurrency(tmp_path: Path, sample_results_df: pd.DataFrame) -> None:
     plotter = BenchmarkPlotter(output_dir=tmp_path / "plots")
     path = plotter.plot_ttft_vs_concurrency(sample_results_df)
     assert path.exists()

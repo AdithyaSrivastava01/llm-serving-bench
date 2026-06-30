@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 import uuid
@@ -20,17 +19,10 @@ logger = logging.getLogger(__name__)
 class BenchmarkOrchestrator:
     def __init__(self, results_dir: Path = Path("results")) -> None:
         self.results_dir = results_dir
-        self._run_id = (
-            f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
-        )
+        self._run_id = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
 
     def _run_dir(self, config: RunConfig) -> Path:
-        return (
-            self.results_dir
-            / self._run_id
-            / config.engine.engine.value
-            / config.config_hash
-        )
+        return self.results_dir / self._run_id / config.engine.engine.value / config.config_hash
 
     def _has_completed_results(self, config: RunConfig) -> bool:
         return (self._run_dir(config) / "metrics.parquet").exists()
@@ -68,9 +60,7 @@ class BenchmarkOrchestrator:
             await gpu_monitor.start()
             all_metrics: list[RequestMetrics] = []
             for rep in range(config.benchmark.num_repetitions):
-                logger.info(
-                    "Repetition %d/%d", rep + 1, config.benchmark.num_repetitions
-                )
+                logger.info("Repetition %d/%d", rep + 1, config.benchmark.num_repetitions)
                 gen = WorkloadGenerator(config.workload, seed=rep)
                 requests = gen.generate()
                 if config.benchmark.warmup_requests > 0:

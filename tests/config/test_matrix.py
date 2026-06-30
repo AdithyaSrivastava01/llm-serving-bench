@@ -1,7 +1,7 @@
-import pytest
 from pathlib import Path
+
 from llm_bench.config.matrix import MatrixExpander, MatrixFilter
-from llm_bench.config.schema import EngineType, WorkloadType, RunConfig
+from llm_bench.config.schema import EngineType, RunConfig, WorkloadType
 
 
 def test_load_matrix_from_yaml(tmp_path: Path) -> None:
@@ -65,7 +65,7 @@ matrix:
 
 def test_filter_skips_tp2_when_max_gpus_1() -> None:
     filt = MatrixFilter(num_gpus=1)
-    from llm_bench.config.schema import EngineConfig, WorkloadConfig, BenchmarkConfig
+    from llm_bench.config.schema import BenchmarkConfig, EngineConfig, WorkloadConfig
 
     run = RunConfig(
         engine=EngineConfig(
@@ -79,7 +79,7 @@ def test_filter_skips_tp2_when_max_gpus_1() -> None:
 
 def test_filter_allows_tp1_when_max_gpus_1() -> None:
     filt = MatrixFilter(num_gpus=1)
-    from llm_bench.config.schema import EngineConfig, WorkloadConfig, BenchmarkConfig
+    from llm_bench.config.schema import BenchmarkConfig, EngineConfig, WorkloadConfig
 
     run = RunConfig(
         engine=EngineConfig(
@@ -108,9 +108,7 @@ matrix:
     expander = MatrixExpander.from_yaml(f)
     configs = expander.expand()
     assert len(configs) == 2
-    caching_values = {
-        c.engine.engine_params.get("enable_prefix_caching") for c in configs
-    }
+    caching_values = {c.engine.engine_params.get("enable_prefix_caching") for c in configs}
     assert caching_values == {True, False}
 
 

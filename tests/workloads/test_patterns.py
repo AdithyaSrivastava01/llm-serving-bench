@@ -1,12 +1,11 @@
-import pytest
-from llm_bench.workloads.patterns import (
-    StandardWorkload,
-    PrefixHeavyWorkload,
-    SpeculativeWorkload,
-)
-from llm_bench.workloads.generator import WorkloadGenerator
 from llm_bench.config.schema import WorkloadConfig, WorkloadType
 from llm_bench.engines.base import GenerateRequest
+from llm_bench.workloads.generator import WorkloadGenerator
+from llm_bench.workloads.patterns import (
+    PrefixHeavyWorkload,
+    SpeculativeWorkload,
+    StandardWorkload,
+)
 
 
 def test_standard_workload_generates_requests() -> None:

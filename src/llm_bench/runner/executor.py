@@ -7,7 +7,7 @@ import uuid
 
 import numpy as np
 
-from llm_bench.engines.base import GenerateRequest, GenerateResponse, ServingEngine
+from llm_bench.engines.base import GenerateRequest, ServingEngine
 from llm_bench.profiling.metrics import RequestMetrics
 
 logger = logging.getLogger(__name__)
@@ -48,9 +48,7 @@ class RequestExecutor:
                         completion_tokens=response.completion_tokens,
                         start_time=start_time,
                         first_token_time=(
-                            response.token_times[0]
-                            if response.token_times
-                            else start_time
+                            response.token_times[0] if response.token_times else start_time
                         ),
                         token_times=response.token_times,
                         end_time=time.perf_counter(),

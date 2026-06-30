@@ -1,6 +1,7 @@
-import pytest
 from pathlib import Path
-from llm_bench.runner.orchestrator import BenchmarkOrchestrator
+
+import pytest
+
 from llm_bench.config.schema import (
     BenchmarkConfig,
     EngineConfig,
@@ -9,6 +10,7 @@ from llm_bench.config.schema import (
     WorkloadConfig,
     WorkloadType,
 )
+from llm_bench.runner.orchestrator import BenchmarkOrchestrator
 
 
 @pytest.fixture

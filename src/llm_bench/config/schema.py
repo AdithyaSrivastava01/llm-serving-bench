@@ -2,19 +2,19 @@ from __future__ import annotations
 
 import hashlib
 import json
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class EngineType(str, Enum):
+class EngineType(StrEnum):
     VLLM = "vllm"
     TRTLLM = "trtllm"
     SGLANG = "sglang"
 
 
-class WorkloadType(str, Enum):
+class WorkloadType(StrEnum):
     STANDARD = "standard"
     PREFIX_HEAVY = "prefix_heavy"
     SPECULATIVE = "speculative"

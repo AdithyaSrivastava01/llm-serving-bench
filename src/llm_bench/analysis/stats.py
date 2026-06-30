@@ -23,10 +23,7 @@ def compute_confidence_interval(
     rng = np.random.default_rng(42)
     arr = np.array(data)
     boot_means = np.array(
-        [
-            rng.choice(arr, size=len(arr), replace=True).mean()
-            for _ in range(n_bootstrap)
-        ]
+        [rng.choice(arr, size=len(arr), replace=True).mean() for _ in range(n_bootstrap)]
     )
     alpha = (1 - confidence) / 2
     lower = float(np.percentile(boot_means, alpha * 100))

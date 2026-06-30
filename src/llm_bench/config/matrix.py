@@ -30,9 +30,7 @@ class MatrixFilter:
         ):
             return "speculative workload not supported on SGLang"
         if run.engine.tp_size > self.num_gpus:
-            return (
-                f"tp_size={run.engine.tp_size} exceeds available GPUs ({self.num_gpus})"
-            )
+            return f"tp_size={run.engine.tp_size} exceeds available GPUs ({self.num_gpus})"
         return None
 
 

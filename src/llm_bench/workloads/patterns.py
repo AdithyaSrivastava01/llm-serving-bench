@@ -30,9 +30,7 @@ class StandardWorkload(Workload):
             )
             entry = ds.load()[0]
             requests.append(
-                GenerateRequest(
-                    prompt=entry.prompt, max_tokens=self.max_tokens, stream=True
-                )
+                GenerateRequest(prompt=entry.prompt, max_tokens=self.max_tokens, stream=True)
             )
         return requests
 
@@ -93,13 +91,9 @@ class SpeculativeWorkload(Workload):
     def generate(self) -> list[GenerateRequest]:
         requests = []
         for i in range(self.num_requests):
-            ds = SyntheticDataset(
-                num_samples=1, prompt_tokens=200, seed=(self.seed or 0) + i
-            )
+            ds = SyntheticDataset(num_samples=1, prompt_tokens=200, seed=(self.seed or 0) + i)
             entry = ds.load()[0]
             requests.append(
-                GenerateRequest(
-                    prompt=entry.prompt, max_tokens=self.max_tokens, stream=True
-                )
+                GenerateRequest(prompt=entry.prompt, max_tokens=self.max_tokens, stream=True)
             )
         return requests

@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import pandas as pd
 
@@ -21,16 +21,12 @@ class GPUSample:
     @property
     def memory_utilization_pct(self) -> float:
         return (
-            (self.memory_used_mb / self.memory_total_mb) * 100
-            if self.memory_total_mb > 0
-            else 0.0
+            (self.memory_used_mb / self.memory_total_mb) * 100 if self.memory_total_mb > 0 else 0.0
         )
 
 
 class GPUMonitor:
-    def __init__(
-        self, poll_interval: float = 1.0, gpu_ids: list[int] | None = None
-    ) -> None:
+    def __init__(self, poll_interval: float = 1.0, gpu_ids: list[int] | None = None) -> None:
         self.poll_interval = poll_interval
         self.gpu_ids = gpu_ids or [0]
         self._samples: list[GPUSample] = []

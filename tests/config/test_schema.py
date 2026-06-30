@@ -1,11 +1,10 @@
-import pytest
 from llm_bench.config.schema import (
-    EngineType,
-    WorkloadType,
-    EngineConfig,
-    WorkloadConfig,
     BenchmarkConfig,
+    EngineConfig,
+    EngineType,
     RunConfig,
+    WorkloadConfig,
+    WorkloadType,
 )
 
 
@@ -65,9 +64,7 @@ def test_benchmark_config_validates() -> None:
 
 
 def test_run_config_composes() -> None:
-    engine_cfg = EngineConfig(
-        engine=EngineType.SGLANG, model="meta-llama/Llama-3.1-8B-Instruct"
-    )
+    engine_cfg = EngineConfig(engine=EngineType.SGLANG, model="meta-llama/Llama-3.1-8B-Instruct")
     workload_cfg = WorkloadConfig(workload=WorkloadType.STANDARD, concurrency=4)
     bench_cfg = BenchmarkConfig()
     run = RunConfig(engine=engine_cfg, workload=workload_cfg, benchmark=bench_cfg)
@@ -77,16 +74,12 @@ def test_run_config_composes() -> None:
 
 def test_run_config_hash_deterministic() -> None:
     run1 = RunConfig(
-        engine=EngineConfig(
-            engine=EngineType.VLLM, model="meta-llama/Llama-3.1-8B-Instruct"
-        ),
+        engine=EngineConfig(engine=EngineType.VLLM, model="meta-llama/Llama-3.1-8B-Instruct"),
         workload=WorkloadConfig(workload=WorkloadType.STANDARD),
         benchmark=BenchmarkConfig(),
     )
     run2 = RunConfig(
-        engine=EngineConfig(
-            engine=EngineType.VLLM, model="meta-llama/Llama-3.1-8B-Instruct"
-        ),
+        engine=EngineConfig(engine=EngineType.VLLM, model="meta-llama/Llama-3.1-8B-Instruct"),
         workload=WorkloadConfig(workload=WorkloadType.STANDARD),
         benchmark=BenchmarkConfig(),
     )
@@ -95,16 +88,12 @@ def test_run_config_hash_deterministic() -> None:
 
 def test_run_config_hash_differs_on_change() -> None:
     run1 = RunConfig(
-        engine=EngineConfig(
-            engine=EngineType.VLLM, model="meta-llama/Llama-3.1-8B-Instruct"
-        ),
+        engine=EngineConfig(engine=EngineType.VLLM, model="meta-llama/Llama-3.1-8B-Instruct"),
         workload=WorkloadConfig(workload=WorkloadType.STANDARD, concurrency=1),
         benchmark=BenchmarkConfig(),
     )
     run2 = RunConfig(
-        engine=EngineConfig(
-            engine=EngineType.VLLM, model="meta-llama/Llama-3.1-8B-Instruct"
-        ),
+        engine=EngineConfig(engine=EngineType.VLLM, model="meta-llama/Llama-3.1-8B-Instruct"),
         workload=WorkloadConfig(workload=WorkloadType.STANDARD, concurrency=16),
         benchmark=BenchmarkConfig(),
     )

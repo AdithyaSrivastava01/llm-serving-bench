@@ -25,8 +25,7 @@ class RequestMetrics:
         if len(self.token_times) < 2:
             return []
         return [
-            self.token_times[i] - self.token_times[i - 1]
-            for i in range(1, len(self.token_times))
+            self.token_times[i] - self.token_times[i - 1] for i in range(1, len(self.token_times))
         ]
 
     @property
@@ -66,9 +65,7 @@ class BenchmarkResult:
                     "completion_tokens": r.completion_tokens,
                     "ttft": r.ttft,
                     "e2e_latency": r.e2e_latency,
-                    "itl_mean": (
-                        sum(r.itl_values) / len(r.itl_values) if r.itl_values else 0.0
-                    ),
+                    "itl_mean": (sum(r.itl_values) / len(r.itl_values) if r.itl_values else 0.0),
                     "itl_values": r.itl_values,
                     "start_time": r.start_time,
                     "end_time": r.end_time,

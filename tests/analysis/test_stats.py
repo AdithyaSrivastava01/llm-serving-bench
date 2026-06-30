@@ -1,10 +1,11 @@
-import pytest
 import numpy as np
+import pytest
+
 from llm_bench.analysis.stats import (
-    compute_percentiles,
-    compute_confidence_interval,
-    compute_summary_stats,
     compare_engines,
+    compute_confidence_interval,
+    compute_percentiles,
+    compute_summary_stats,
 )
 
 

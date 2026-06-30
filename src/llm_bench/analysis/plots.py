@@ -66,9 +66,7 @@ class BenchmarkPlotter:
 
     def plot_throughput_vs_concurrency(self, df: pd.DataFrame) -> Path:
         fig, ax = plt.subplots(figsize=FIGSIZE)
-        means = (
-            df.groupby(["engine", "concurrency"])["throughput_tps"].mean().reset_index()
-        )
+        means = df.groupby(["engine", "concurrency"])["throughput_tps"].mean().reset_index()
         sns.barplot(
             data=means,
             x="concurrency",
@@ -93,9 +91,7 @@ class BenchmarkPlotter:
 
     def plot_kernel_breakdown(self, kernel_df: pd.DataFrame) -> Path:
         fig, ax = plt.subplots(figsize=FIGSIZE)
-        kernel_df.plot.barh(
-            x="kernel_type", y="time_pct", ax=ax, color="#4c72b0", legend=False
-        )
+        kernel_df.plot.barh(x="kernel_type", y="time_pct", ax=ax, color="#4c72b0", legend=False)
         ax.set_xlabel("Time (%)")
         ax.set_ylabel("Kernel Type")
         ax.set_title("GPU Kernel Time Breakdown")
