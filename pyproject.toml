@@ -15,6 +15,7 @@ dependencies = [
     "docker>=7.0",
     "pynvml>=11.5",
     "numpy>=1.26",
+    "scipy>=1.17.1",
 ]
 
 [project.scripts]
