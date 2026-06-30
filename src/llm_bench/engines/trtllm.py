@@ -10,7 +10,7 @@ from typing import Any
 import aiohttp
 
 import docker
-from llm_bench.config.schema import EngineConfig
+from llm_bench.config.schema import EngineConfig, LaunchMode
 from llm_bench.engines.base import GenerateRequest, GenerateResponse, ServingEngine
 
 logger = logging.getLogger(__name__)
@@ -24,6 +24,7 @@ class TRTLLMEngine(ServingEngine):
     def __init__(self, config: EngineConfig) -> None:
         super().__init__(config)
         self._container: Any = None
+        self._process: asyncio.subprocess.Process | None = None
         self._port = TRITON_HTTP_PORT
 
     @property
@@ -85,26 +86,47 @@ class TRTLLMEngine(ServingEngine):
 
     async def start(self) -> None:
         logger.info(
-            "Starting TRT-LLM/Triton for %s (TP=%d)",
+            "Starting TRT-LLM/Triton (%s) for %s (TP=%d)",
+            self.config.launch_mode.value,
             self.config.model,
             self.config.tp_size,
         )
         if not self._engine_cache_dir.exists():
             logger.warning("No pre-built TRT engine at %s", self._engine_cache_dir)
-        client = docker.from_env()
-        self._container = client.containers.run(**self._build_container_config())
         self._base_url = f"http://localhost:{self._port}"
-        for attempt in range(180):
+
+        if self.config.launch_mode == LaunchMode.DOCKER:
+            client = docker.from_env()
+            self._container = client.containers.run(**self._build_container_config())
+        else:
+            cmd = [
+                "tritonserver",
+                f"--model-repository={self._engine_cache_dir}",
+                f"--http-port={self._port}",
+                f"--grpc-port={TRITON_GRPC_PORT}",
+            ]
+            self._process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+
+        timeout = 180
+        for attempt in range(timeout):
             if await self.health_check():
                 logger.info("TRT-LLM ready after %d seconds", attempt)
                 return
             await asyncio.sleep(1)
-        raise TimeoutError("TRT-LLM failed to start within 180 seconds")
+        raise TimeoutError(f"TRT-LLM failed to start within {timeout} seconds")
 
     async def stop(self) -> None:
         if self._container:
             self._container.stop(timeout=10)
             self._container = None
+        if self._process:
+            self._process.terminate()
+            await self._process.wait()
+            self._process = None
 
     async def health_check(self) -> bool:
         try:

@@ -9,7 +9,7 @@ from typing import Any
 import aiohttp
 
 import docker
-from llm_bench.config.schema import EngineConfig
+from llm_bench.config.schema import EngineConfig, LaunchMode
 from llm_bench.engines.base import GenerateRequest, GenerateResponse, ServingEngine
 
 logger = logging.getLogger(__name__)
@@ -21,6 +21,7 @@ class VLLMEngine(ServingEngine):
     def __init__(self, config: EngineConfig) -> None:
         super().__init__(config)
         self._container: Any = None
+        self._process: asyncio.subprocess.Process | None = None
         self._port = VLLM_PORT
 
     def _build_launch_cmd(self) -> list[str]:
@@ -73,26 +74,44 @@ class VLLMEngine(ServingEngine):
 
     async def start(self) -> None:
         logger.info(
-            "Starting vLLM container for %s (TP=%d)",
+            "Starting vLLM (%s) for %s (TP=%d)",
+            self.config.launch_mode.value,
             self.config.model,
             self.config.tp_size,
         )
-        client = docker.from_env()
-        container_cfg = self._build_container_config()
-        self._container = client.containers.run(**container_cfg)
         self._base_url = f"http://localhost:{self._port}"
-        for attempt in range(120):
+
+        if self.config.launch_mode == LaunchMode.DOCKER:
+            client = docker.from_env()
+            container_cfg = self._build_container_config()
+            self._container = client.containers.run(**container_cfg)
+        else:
+            cmd = ["python", "-m", "vllm.entrypoints.openai.api_server"]
+            cmd.extend(self._build_launch_cmd())
+            self._process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+
+        timeout = 120
+        for attempt in range(timeout):
             if await self.health_check():
                 logger.info("vLLM engine ready after %d seconds", attempt)
                 return
             await asyncio.sleep(1)
-        raise TimeoutError("vLLM engine failed to start within 120 seconds")
+        raise TimeoutError(f"vLLM engine failed to start within {timeout} seconds")
 
     async def stop(self) -> None:
         if self._container:
             logger.info("Stopping vLLM container")
             self._container.stop(timeout=10)
             self._container = None
+        if self._process:
+            logger.info("Stopping vLLM process")
+            self._process.terminate()
+            await self._process.wait()
+            self._process = None
 
     async def health_check(self) -> bool:
         try:

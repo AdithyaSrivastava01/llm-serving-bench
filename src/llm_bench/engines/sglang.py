@@ -9,7 +9,7 @@ from typing import Any
 import aiohttp
 
 import docker
-from llm_bench.config.schema import EngineConfig
+from llm_bench.config.schema import EngineConfig, LaunchMode
 from llm_bench.engines.base import GenerateRequest, GenerateResponse, ServingEngine
 
 logger = logging.getLogger(__name__)
@@ -21,6 +21,7 @@ class SGLangEngine(ServingEngine):
     def __init__(self, config: EngineConfig) -> None:
         super().__init__(config)
         self._container: Any = None
+        self._process: asyncio.subprocess.Process | None = None
         self._port = SGLANG_PORT
 
     def _build_launch_cmd(self) -> list[str]:
@@ -66,21 +67,41 @@ class SGLangEngine(ServingEngine):
         return f"{self._base_url}/health"
 
     async def start(self) -> None:
-        logger.info("Starting SGLang for %s (TP=%d)", self.config.model, self.config.tp_size)
-        client = docker.from_env()
-        self._container = client.containers.run(**self._build_container_config())
+        logger.info(
+            "Starting SGLang (%s) for %s (TP=%d)",
+            self.config.launch_mode.value,
+            self.config.model,
+            self.config.tp_size,
+        )
         self._base_url = f"http://localhost:{self._port}"
-        for attempt in range(120):
+
+        if self.config.launch_mode == LaunchMode.DOCKER:
+            client = docker.from_env()
+            self._container = client.containers.run(**self._build_container_config())
+        else:
+            cmd = self._build_launch_cmd()
+            self._process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+
+        timeout = 120
+        for attempt in range(timeout):
             if await self.health_check():
                 logger.info("SGLang ready after %d seconds", attempt)
                 return
             await asyncio.sleep(1)
-        raise TimeoutError("SGLang failed to start within 120 seconds")
+        raise TimeoutError(f"SGLang failed to start within {timeout} seconds")
 
     async def stop(self) -> None:
         if self._container:
             self._container.stop(timeout=10)
             self._container = None
+        if self._process:
+            self._process.terminate()
+            await self._process.wait()
+            self._process = None
 
     async def health_check(self) -> bool:
         try:
@@ -140,7 +161,9 @@ class SGLangEngine(ServingEngine):
 
         metrics: dict[str, Any] = {}
         try:
-            with urllib.request.urlopen(f"{self._base_url}/get_model_info", timeout=5) as resp:
+            with urllib.request.urlopen(
+                f"{self._base_url}/get_model_info", timeout=5
+            ) as resp:
                 metrics["model_info"] = json.loads(resp.read().decode())
         except Exception as e:
             logger.warning("Failed to get SGLang model info: %s", e)

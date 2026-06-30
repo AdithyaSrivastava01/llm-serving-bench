@@ -20,10 +20,16 @@ class WorkloadType(StrEnum):
     SPECULATIVE = "speculative"
 
 
+class LaunchMode(StrEnum):
+    PROCESS = "process"
+    DOCKER = "docker"
+
+
 class EngineConfig(BaseModel):
     engine: EngineType
     model: str
     tp_size: int = 1
+    launch_mode: LaunchMode = LaunchMode.PROCESS
     engine_params: dict[str, Any] = Field(default_factory=dict)
 
 

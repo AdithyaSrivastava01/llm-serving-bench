@@ -31,21 +31,33 @@ def run(
     results_dir: Path = typer.Option(
         Path("results"), "--results-dir", "-o", help="Output directory for results"
     ),
-    num_gpus: int = typer.Option(2, "--num-gpus", "-g", help="Number of available GPUs"),
+    num_gpus: int = typer.Option(
+        2, "--num-gpus", "-g", help="Number of available GPUs"
+    ),
     skip_existing: bool = typer.Option(
         True,
         "--skip-existing/--no-skip-existing",
         help="Skip configs with existing results",
+    ),
+    mode: str = typer.Option(
+        "process",
+        "--mode",
+        "-m",
+        help="Launch mode: 'process' (direct) or 'docker' (container)",
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
     """Run benchmark matrix."""
     setup_logging(verbose)
     from llm_bench.config.matrix import MatrixExpander
+    from llm_bench.config.schema import LaunchMode
     from llm_bench.runner.orchestrator import BenchmarkOrchestrator
 
+    launch_mode = LaunchMode(mode)
     expander = MatrixExpander.from_yaml(config, num_gpus=num_gpus)
     configs = expander.expand()
+    for cfg in configs:
+        cfg.engine.launch_mode = launch_mode
     typer.echo(f"Expanded {len(configs)} configs ({len(expander.skipped)} skipped)")
     for reason in expander.skipped:
         typer.echo(f"  Skipped: {reason}")
