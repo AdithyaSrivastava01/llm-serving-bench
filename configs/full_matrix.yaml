@@ -1,0 +1,20 @@
+# Full benchmark matrix — ~48 configs × 3 reps = ~3-4 hours on 2x A100
+# Use with: bench run --mode process --num-gpus 2 --config configs/full_matrix.yaml
+matrix:
+  engines: [vllm, sglang]
+  models:
+    - Qwen/Qwen3-8B
+  workloads: [standard, prefix_heavy]
+  tp_size: [1, 2]
+  concurrency: [1, 4, 16, 32]
+  engine_params:
+    vllm:
+      enable_prefix_caching: [true, false]
+    sglang:
+      chunked_prefill_size: [8192]
+
+defaults:
+  num_requests: 100
+  warmup_requests: 10
+  max_tokens: 256
+  num_repetitions: 3
