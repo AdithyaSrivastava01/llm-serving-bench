@@ -1,0 +1,25 @@
+{
+  "engine": {
+    "engine": "vllm",
+    "model": "Qwen/Qwen3-8B",
+    "tp_size": 1,
+    "launch_mode": "connect",
+    "engine_params": {
+      "enable_prefix_caching": false
+    }
+  },
+  "workload": {
+    "workload": "standard",
+    "num_requests": 20,
+    "concurrency": 1,
+    "warmup_requests": 2,
+    "max_tokens": 64,
+    "workload_params": {}
+  },
+  "benchmark": {
+    "num_repetitions": 1,
+    "warmup_requests": 2,
+    "enable_profiling": false,
+    "request_rate": null
+  }
+}
