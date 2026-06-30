@@ -30,13 +30,16 @@ class MatrixFilter:
         ):
             return "speculative workload not supported on SGLang"
         if run.engine.tp_size > self.num_gpus:
-            return f"tp_size={run.engine.tp_size} exceeds available GPUs ({self.num_gpus})"
+            return (
+                f"tp_size={run.engine.tp_size} exceeds available GPUs ({self.num_gpus})"
+            )
         return None
 
 
 class MatrixExpander:
     def __init__(self, raw: dict[str, Any], num_gpus: int = 8) -> None:
         self.raw = raw["matrix"]
+        self._defaults: dict[str, Any] = raw.get("defaults", {})
         self.filter = MatrixFilter(num_gpus=num_gpus)
         self.skipped: list[str] = []
 
@@ -68,6 +71,7 @@ class MatrixExpander:
         workloads = [WorkloadType(w) for w in self.raw["workloads"]]
         tp_sizes = self.raw["tp_size"]
         concurrencies = self.raw["concurrency"]
+        defaults = self._defaults
         for engine, model, workload, tp, conc in itertools.product(
             engines, models, workloads, tp_sizes, concurrencies
         ):
@@ -76,8 +80,17 @@ class MatrixExpander:
                     engine=EngineConfig(
                         engine=engine, model=model, tp_size=tp, engine_params=params
                     ),
-                    workload=WorkloadConfig(workload=workload, concurrency=conc),
-                    benchmark=BenchmarkConfig(),
+                    workload=WorkloadConfig(
+                        workload=workload,
+                        concurrency=conc,
+                        num_requests=defaults.get("num_requests", 100),
+                        warmup_requests=defaults.get("warmup_requests", 10),
+                        max_tokens=defaults.get("max_tokens", 256),
+                    ),
+                    benchmark=BenchmarkConfig(
+                        num_repetitions=defaults.get("num_repetitions", 3),
+                        warmup_requests=defaults.get("warmup_requests", 10),
+                    ),
                 )
                 skip_reason = self.filter.should_skip(run)
                 if skip_reason:

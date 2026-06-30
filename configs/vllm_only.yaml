@@ -3,8 +3,14 @@ matrix:
   models:
     - Qwen/Qwen3-8B
   workloads: [standard, prefix_heavy]
-  tp_size: [1, 2]
+  tp_size: [1]
   concurrency: [1, 16]
   engine_params:
     vllm:
       enable_prefix_caching: [true, false]
+
+defaults:
+  num_requests: 20
+  warmup_requests: 2
+  max_tokens: 64
+  num_repetitions: 1
