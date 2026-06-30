@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import sys
 import time
 from typing import Any
 
@@ -86,7 +87,7 @@ class VLLMEngine(ServingEngine):
             container_cfg = self._build_container_config()
             self._container = client.containers.run(**container_cfg)
         else:
-            cmd = ["python", "-m", "vllm.entrypoints.openai.api_server"]
+            cmd = [sys.executable, "-m", "vllm.entrypoints.openai.api_server"]
             cmd.extend(self._build_launch_cmd())
             logger.info("Launch cmd: %s", " ".join(cmd))
             self._process = await asyncio.create_subprocess_exec(

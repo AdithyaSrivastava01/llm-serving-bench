@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import sys
 import time
 from typing import Any
 
@@ -26,7 +27,7 @@ class SGLangEngine(ServingEngine):
 
     def _build_launch_cmd(self) -> list[str]:
         cmd = [
-            "python3",
+            sys.executable,
             "-m",
             "sglang.launch_server",
             "--model-path",
