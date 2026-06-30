@@ -1,0 +1,13 @@
+# Quick benchmark matrix — ~30 configs, ~1-2 hours on 2x A100
+matrix:
+  engines: [vllm, sglang]
+  models:
+    - meta-llama/Llama-3.1-8B-Instruct
+  workloads: [standard, prefix_heavy]
+  tp_size: [1, 2]
+  concurrency: [1, 16]
+  engine_params:
+    vllm:
+      enable_prefix_caching: [true, false]
+    sglang:
+      chunked_prefill_size: [8192]
