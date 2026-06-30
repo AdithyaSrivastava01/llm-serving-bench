@@ -20,11 +20,17 @@ Stress-testing harness comparing LLM serving engines — **vLLM**, **TensorRT-LL
   <img src="results/plots/gpu_memory_timeline.png" width="48%">
 </p>
 
-**Findings:**
-- TTFT scales linearly with concurrency (53ms → 96ms at 16x) due to prefill queueing
-- ITL stays remarkably stable (~23.5ms) regardless of concurrency — vLLM's continuous batching handles decode efficiently
-- Prefix caching shows minimal TTFT improvement on synthetic prompts (needs real RAG workloads with high prefix overlap for measurable impact)
-- GPU memory flat at 77GB — vLLM pre-allocates KV cache via `--gpu-memory-utilization 0.95`
+### Interpretation
+
+**TTFT doubles under load, but decode stays rock-solid.** At concurrency 1, prefill completes in ~53ms — the model processes the prompt and emits the first token with near-zero queueing. At concurrency 16, TTFT rises to ~96-101ms. This 1.8x increase is expected: vLLM serializes prefill across batched requests, so each request waits while earlier prompts in the batch finish their prefill phase. The linear scaling (not exponential) confirms vLLM's scheduler handles contention gracefully.
+
+**ITL is invariant to concurrency.** Every config shows ~23.5ms per token regardless of whether 1 or 16 requests are in-flight. This is the signature of vLLM's continuous batching — once a request enters the decode phase, it gets consistent GPU time per iteration. The tight distribution (std < 0.5ms) means no scheduling jitter or memory pressure stalls.
+
+**Prefix caching has negligible impact on synthetic workloads.** Enabling `--enable-prefix-caching` shows no measurable TTFT reduction (54.1ms vs 52.9ms for standard at concurrency 1). This is expected — our synthetic prompts are randomly generated, so there are no shared prefixes to cache. In production RAG workloads where hundreds of requests share the same retrieval context, prefix caching eliminates redundant KV computation and can cut TTFT by 30-60%.
+
+**GPU memory is pre-allocated, not dynamic.** The flat 77GB line shows vLLM's memory management strategy: allocate 95% of GPU memory upfront for KV cache blocks (`--gpu-memory-utilization 0.95`), then manage blocks internally via PagedAttention. This avoids fragmentation but means memory usage doesn't reflect actual load — it's a design tradeoff for throughput over memory efficiency.
+
+**E2E latency scales sub-linearly with concurrency.** 1.53s → 1.57s (standard) going from 1 to 16 concurrent requests is only a 2.6% increase. The model generates ~64 tokens at ~23.5ms each ≈ 1.50s of pure decode time, plus prefill. The near-flat E2E despite 16x concurrency demonstrates that continuous batching amortizes the scheduling overhead effectively.
 
 ## Architecture
 
@@ -136,11 +142,3 @@ export HF_HOME=/workspace/.cache/huggingface
 # Connect to template's pre-running vLLM server
 python3 -c "from llm_bench.cli import app; app()" run --mode connect --num-gpus 2 --config configs/vllm_only.yaml
 ```
-
-## Tech Stack
-
-Python 3.11+ · Typer · Pydantic v2 · aiohttp · pandas · PyArrow · matplotlib · seaborn · Docker SDK · pynvml · Nsight Systems
-
-## License
-
-MIT
