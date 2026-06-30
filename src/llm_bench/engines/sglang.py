@@ -80,25 +80,37 @@ class SGLangEngine(ServingEngine):
             self._container = client.containers.run(**self._build_container_config())
         else:
             cmd = self._build_launch_cmd()
+            logger.info("Launch cmd: %s", " ".join(cmd))
             self._process = await asyncio.create_subprocess_exec(
                 *cmd,
-                stdout=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.PIPE,
             )
 
         timeout = 120
         for attempt in range(timeout):
+            if self._process and self._process.returncode is not None:
+                stderr = (
+                    await self._process.stderr.read() if self._process.stderr else b""
+                )
+                raise RuntimeError(
+                    f"SGLang process exited with code {self._process.returncode}: "
+                    f"{stderr.decode()[-2000:]}"
+                )
             if await self.health_check():
                 logger.info("SGLang ready after %d seconds", attempt)
                 return
             await asyncio.sleep(1)
+        if self._process and self._process.stderr:
+            stderr = await self._process.stderr.read()
+            logger.error("SGLang stderr: %s", stderr.decode()[-2000:])
         raise TimeoutError(f"SGLang failed to start within {timeout} seconds")
 
     async def stop(self) -> None:
         if self._container:
             self._container.stop(timeout=10)
             self._container = None
-        if self._process:
+        if self._process and self._process.returncode is None:
             self._process.terminate()
             await self._process.wait()
             self._process = None

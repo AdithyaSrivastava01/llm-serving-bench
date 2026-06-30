@@ -105,25 +105,37 @@ class TRTLLMEngine(ServingEngine):
                 f"--http-port={self._port}",
                 f"--grpc-port={TRITON_GRPC_PORT}",
             ]
+            logger.info("Launch cmd: %s", " ".join(cmd))
             self._process = await asyncio.create_subprocess_exec(
                 *cmd,
-                stdout=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.PIPE,
             )
 
         timeout = 180
         for attempt in range(timeout):
+            if self._process and self._process.returncode is not None:
+                stderr = (
+                    await self._process.stderr.read() if self._process.stderr else b""
+                )
+                raise RuntimeError(
+                    f"TRT-LLM process exited with code {self._process.returncode}: "
+                    f"{stderr.decode()[-2000:]}"
+                )
             if await self.health_check():
                 logger.info("TRT-LLM ready after %d seconds", attempt)
                 return
             await asyncio.sleep(1)
+        if self._process and self._process.stderr:
+            stderr = await self._process.stderr.read()
+            logger.error("TRT-LLM stderr: %s", stderr.decode()[-2000:])
         raise TimeoutError(f"TRT-LLM failed to start within {timeout} seconds")
 
     async def stop(self) -> None:
         if self._container:
             self._container.stop(timeout=10)
             self._container = None
-        if self._process:
+        if self._process and self._process.returncode is None:
             self._process.terminate()
             await self._process.wait()
             self._process = None
