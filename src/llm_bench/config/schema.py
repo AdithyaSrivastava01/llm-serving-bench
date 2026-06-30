@@ -23,6 +23,7 @@ class WorkloadType(StrEnum):
 class LaunchMode(StrEnum):
     PROCESS = "process"
     DOCKER = "docker"
+    CONNECT = "connect"  # Connect to an already-running server
 
 
 class EngineConfig(BaseModel):

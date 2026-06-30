@@ -15,7 +15,7 @@ from llm_bench.engines.base import GenerateRequest, GenerateResponse, ServingEng
 
 logger = logging.getLogger(__name__)
 VLLM_IMAGE = "vllm/vllm-openai:latest"
-VLLM_PORT = 8100
+VLLM_PORT = 8000
 
 
 class VLLMEngine(ServingEngine):
@@ -82,7 +82,16 @@ class VLLMEngine(ServingEngine):
         )
         self._base_url = f"http://localhost:{self._port}"
 
-        if self.config.launch_mode == LaunchMode.DOCKER:
+        if self.config.launch_mode == LaunchMode.CONNECT:
+            # Connect to already-running server — just verify it's up
+            if not await self.health_check():
+                raise RuntimeError(
+                    f"No vLLM server found at {self._base_url}. "
+                    "Start one manually or use --mode process."
+                )
+            logger.info("Connected to existing vLLM server at %s", self._base_url)
+            return
+        elif self.config.launch_mode == LaunchMode.DOCKER:
             client = docker.from_env()
             container_cfg = self._build_container_config()
             self._container = client.containers.run(**container_cfg)
@@ -98,7 +107,6 @@ class VLLMEngine(ServingEngine):
 
         timeout = 120
         for attempt in range(timeout):
-            # Check if process died early
             if self._process and self._process.returncode is not None:
                 stderr = (
                     await self._process.stderr.read() if self._process.stderr else b""
@@ -111,13 +119,14 @@ class VLLMEngine(ServingEngine):
                 logger.info("vLLM engine ready after %d seconds", attempt)
                 return
             await asyncio.sleep(1)
-        # Timeout — grab stderr for diagnosis
         if self._process and self._process.stderr:
             stderr = await self._process.stderr.read()
             logger.error("vLLM stderr: %s", stderr.decode()[-2000:])
         raise TimeoutError(f"vLLM engine failed to start within {timeout} seconds")
 
     async def stop(self) -> None:
+        if self.config.launch_mode == LaunchMode.CONNECT:
+            return  # Don't stop a server we didn't start
         if self._container:
             logger.info("Stopping vLLM container")
             self._container.stop(timeout=10)

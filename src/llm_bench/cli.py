@@ -43,7 +43,7 @@ def run(
         "process",
         "--mode",
         "-m",
-        help="Launch mode: 'process' (direct) or 'docker' (container)",
+        help="Launch mode: 'process' (direct), 'docker' (container), or 'connect' (existing server)",
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
