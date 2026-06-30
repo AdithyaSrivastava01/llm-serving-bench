@@ -15,7 +15,7 @@ from llm_bench.engines.base import GenerateRequest, GenerateResponse, ServingEng
 
 logger = logging.getLogger(__name__)
 VLLM_IMAGE = "vllm/vllm-openai:latest"
-VLLM_PORT = 8000
+VLLM_PORT = 8100
 
 
 class VLLMEngine(ServingEngine):
