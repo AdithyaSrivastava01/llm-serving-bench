@@ -1,0 +1,10 @@
+matrix:
+  engines: [vllm]
+  models:
+    - meta-llama/Llama-3.1-8B-Instruct
+  workloads: [standard, prefix_heavy]
+  tp_size: [1, 2]
+  concurrency: [1, 16]
+  engine_params:
+    vllm:
+      enable_prefix_caching: [true, false]
